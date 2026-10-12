@@ -58,14 +58,19 @@ public class UsuarioService : IUsuarioService
         var passwordHash =
             BCrypt.Net.BCrypt.HashPassword(d.Password);
 
+        // Cálculo exacto de la edad considerando día, mes y año
+        int edadCalculada = CalcularEdad(d.FechaNacimiento);
+
         var usuario = new Usuario
         {
             Nombre = d.Nombre.Trim(),
             Apellido = d.Apellido.Trim(),
             Correo = correo,
             PasswordHash = passwordHash,
-            Edad = d.Edad,
-            RolId = d.RolId
+            FechaNacimiento = d.FechaNacimiento,
+            Edad = edadCalculada,
+            Universidad = d.Universidad.Trim(),
+            Semestre = d.Semestre
         };
 
         await _repo.CrearAsync(usuario);
@@ -104,15 +109,13 @@ public class UsuarioService : IUsuarioService
             return null;
         }
 
-        // Comparar la contraseña ingresada
-        // con el HASH almacenado en la BD
+        // Comparar la contraseña ingresada con el HASH
         var passwordCorrecto =
             BCrypt.Net.BCrypt.Verify(
                 dto.Password,
                 usuario.PasswordHash
             );
 
-        // Contraseña incorrecta
         if (!passwordCorrecto)
         {
             return null;
@@ -155,7 +158,6 @@ public class UsuarioService : IUsuarioService
         usuario.Nombre = d.Nombre.Trim();
         usuario.Apellido = d.Apellido.Trim();
         usuario.Correo = correo;
-        usuario.Edad = d.Edad;
         usuario.Activo = d.Activo;
 
         await _repo.ActualizarAsync(usuario);
@@ -182,6 +184,23 @@ public class UsuarioService : IUsuarioService
     }
 
     // ==========================================
+    // CÁLCULO DE EDAD DE FORMA EXACTA
+    // ==========================================
+    private static int CalcularEdad(DateTime fechaNacimiento)
+    {
+        var hoy = DateTime.Today;
+        var edad = hoy.Year - fechaNacimiento.Year;
+
+        // Si aún no ha cumplido años en este año calendario, restamos 1
+        if (fechaNacimiento.Date > hoy.AddYears(-edad))
+        {
+            edad--;
+        }
+
+        return edad;
+    }
+
+    // ==========================================
     // MAPEO ENTITY -> DTO
     // ==========================================
     private static UsuarioDto Map(Usuario u)
@@ -192,7 +211,10 @@ public class UsuarioService : IUsuarioService
             Nombre = u.Nombre,
             Apellido = u.Apellido,
             Correo = u.Correo,
+            FechaNacimiento = u.FechaNacimiento,
             Edad = u.Edad,
+            Universidad = u.Universidad,
+            Semestre = u.Semestre,
             Activo = u.Activo,
             FechaCreacion = u.FechaCreacion
         };

@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../Documents/Introduccion"
+		},
+		{
+			"path": "../Documents/ANGULAR"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Introduccion"
+	}
+}
