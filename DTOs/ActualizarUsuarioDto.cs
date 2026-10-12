@@ -1,24 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace UsuariosApi.DTOs;
+namespace UsuariosApi.DTOs; // Ajusta el namespace si tu proyecto tiene otro nombre
 
 public class ActualizarUsuarioDto
 {
-    [Required]
-    [MaxLength(100)]
     public string Nombre { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(100)]
     public string Apellido { get; set; } = string.Empty;
-
-    [Required]
-    [EmailAddress]
-    [MaxLength(150)]
     public string Correo { get; set; } = string.Empty;
-
-    [Range(1, 120)]
-    public int Edad { get; set; }
-
-    public bool Activo { get; set; }
+    public string Password { get; set; } = string.Empty;
+    public DateTime FechaNacimiento { get; set; }
+    public string Universidad { get; set; } = string.Empty;
+    public int Semestre { get; set; }
+    public bool Activo { get; set; } = true;
 }

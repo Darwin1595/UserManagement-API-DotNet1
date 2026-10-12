@@ -55,8 +55,7 @@ public class UsuarioService : IUsuarioService
         }
 
         // Convertir contraseña en HASH
-        var passwordHash =
-            BCrypt.Net.BCrypt.HashPassword(d.Password);
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(d.Password);
 
         // Cálculo exacto de la edad considerando día, mes y año
         int edadCalculada = CalcularEdad(d.FechaNacimiento);
@@ -88,8 +87,7 @@ public class UsuarioService : IUsuarioService
             .ToLowerInvariant();
 
         // Buscar usuario por correo
-        var usuario =
-            await _repo.ObtenerPorCorreoAsync(correo);
+        var usuario = await _repo.ObtenerPorCorreoAsync(correo);
 
         // Usuario no encontrado
         if (usuario is null)
@@ -110,11 +108,10 @@ public class UsuarioService : IUsuarioService
         }
 
         // Comparar la contraseña ingresada con el HASH
-        var passwordCorrecto =
-            BCrypt.Net.BCrypt.Verify(
-                dto.Password,
-                usuario.PasswordHash
-            );
+        var passwordCorrecto = BCrypt.Net.BCrypt.Verify(
+            dto.Password,
+            usuario.PasswordHash
+        );
 
         if (!passwordCorrecto)
         {
@@ -126,14 +123,11 @@ public class UsuarioService : IUsuarioService
     }
 
     // ==========================================
-    // ACTUALIZAR
+    // ACTUALIZAR (CON CÁLCULO DE EDAD Y NUEVOS CAMPOS)
     // ==========================================
-    public async Task<bool> ActualizarAsync(
-        int id,
-        ActualizarUsuarioDto d)
+    public async Task<bool> ActualizarAsync(int id, ActualizarUsuarioDto d)
     {
-        var usuario =
-            await _repo.ObtenerPorIdAsync(id);
+        var usuario = await _repo.ObtenerPorIdAsync(id);
 
         if (usuario is null)
         {
@@ -144,21 +138,31 @@ public class UsuarioService : IUsuarioService
             .Trim()
             .ToLowerInvariant();
 
-        var otro =
-            await _repo.ObtenerPorCorreoAsync(correo);
+        var otro = await _repo.ObtenerPorCorreoAsync(correo);
 
-        if (otro is not null &&
-            otro.Id != id)
+        if (otro is not null && otro.Id != id)
         {
             throw new InvalidOperationException(
                 "El correo pertenece a otro usuario."
             );
         }
 
+        // Recalcular edad automáticamente basada en la FechaNacimiento
+        int edadCalculada = CalcularEdad(d.FechaNacimiento);
+
         usuario.Nombre = d.Nombre.Trim();
         usuario.Apellido = d.Apellido.Trim();
         usuario.Correo = correo;
+        usuario.FechaNacimiento = d.FechaNacimiento;
+        usuario.Edad = edadCalculada;
+        usuario.Universidad = d.Universidad.Trim();
+        usuario.Semestre = d.Semestre;
         usuario.Activo = d.Activo;
+
+        if (!string.IsNullOrWhiteSpace(d.Password))
+        {
+            usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(d.Password);
+        }
 
         await _repo.ActualizarAsync(usuario);
 
@@ -170,8 +174,7 @@ public class UsuarioService : IUsuarioService
     // ==========================================
     public async Task<bool> EliminarAsync(int id)
     {
-        var usuario =
-            await _repo.ObtenerPorIdAsync(id);
+        var usuario = await _repo.ObtenerPorIdAsync(id);
 
         if (usuario is null)
         {

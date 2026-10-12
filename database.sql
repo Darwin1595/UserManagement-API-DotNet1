@@ -1,0 +1,17 @@
+CREATE DATABASE IF NOT EXISTS UserManagementDb;
+USE UserManagementDb;
+
+--  Crear la tabla de Usuarios
+CREATE TABLE IF NOT EXISTS Usuarios (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellido VARCHAR(100) NOT NULL,
+    Correo VARCHAR(150) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL,
+    FechaNacimiento DATE NOT NULL,
+    Edad INT NOT NULL,
+    Universidad VARCHAR(150) NOT NULL,
+    Semestre INT NOT NULL,
+    Activo TINYINT(1) DEFAULT 1 NOT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
